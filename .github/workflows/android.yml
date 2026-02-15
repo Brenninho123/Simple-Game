@@ -1,0 +1,53 @@
+name: Build Android
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # -------- JAVA (necessário pro Gradle) --------
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # -------- ANDROID SDK --------
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      # -------- GODOT --------
+      - name: Download Godot
+        run: |
+          wget https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_linux.x86_64.zip
+          unzip Godot_v4.2.2-stable_linux.x86_64.zip
+          mv Godot_v4.2.2-stable_linux.x86_64 godot
+          chmod +x godot
+
+      # -------- EXPORT TEMPLATES --------
+      - name: Install export templates
+        run: |
+          wget https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.2.2.stable
+          unzip Godot_v4.2.2-stable_export_templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/4.2.2.stable/
+
+      # -------- BUILD APK --------
+      - name: Export Android APK
+        run: |
+          mkdir -p build/android
+          ./godot --headless --path . --export-release "Android" build/android/SimpleGame.apk
+
+      # -------- ARTIFACT --------
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleGame-Android
+          path: build/android/
