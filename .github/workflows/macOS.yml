@@ -1,0 +1,41 @@
+name: Build macOS
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ----------- DOWNLOAD GODOT -----------
+      - name: Download Godot
+        run: |
+          curl -L -o godot.zip https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_macos.universal.zip
+          unzip godot.zip
+          mv Godot.app godot.app
+
+      # -------- EXPORT TEMPLATES ------------
+      - name: Install export templates
+        run: |
+          curl -L -o templates.tpz https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_export_templates.tpz
+          mkdir -p ~/Library/Application\ Support/Godot/export_templates/4.2.2.stable
+          unzip templates.tpz
+          mv templates/* ~/Library/Application\ Support/Godot/export_templates/4.2.2.stable/
+
+      # -------------- BUILD -----------------
+      - name: Export macOS build
+        run: |
+          mkdir -p build/macos
+          godot.app/Contents/MacOS/Godot --headless --path . --export-release "macOS" build/macos/SimpleGame.zip
+
+      # ------------ ARTIFACT ----------------
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleGame-macOS
+          path: build/macos/
