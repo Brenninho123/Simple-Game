@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3]
+
+[node name="Menu" type="Node2D"]
+
+[node name="TitleLabel" type="Label" parent="."]
+text = "Simple Game"
+align = 1
+valign = 1
+position = Vector2(640, 200)
+custom_fonts/font = null
+
+[node name="StartButton" type="Button" parent="."]
+text = "Start Game"
+position = Vector2(640, 400)
+anchor_mode = 2
+
+[node name="QuitButton" type="Button" parent="."]
+text = "Quit"
+position = Vector2(640, 500)
+anchor_mode = 2
+
+[node name="MenuScript" type="Script" parent="Menu"]
+script = ExtResource( 1 )
